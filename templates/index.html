@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <h1>Face Recognition Demo</h1>
+    <h2><a href="/trainning">Trainning</a></h2>
+    <img id="frame" src="" alt="Video Frame" style="width: 100%; max-width: 720px;"/>
+    <button onclick="startCam()">Start Camera</button>
+    <button onclick="stopCam()">Stop Camera</button>
+    <button onclick="syncDataSet()">Sync DataSet</button>
+
+    <script>
+        var socket;
+        var isCameraRunning = false;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                console.log('WebSocket connected');
+            });
+
+            socket.on('frame', function(data) {
+                if (isCameraRunning) {
+                    document.getElementById('frame').src = 'data:image/jpeg;base64,' + btoa(String.fromCharCode.apply(null, new Uint8Array(data.frame_encoded)));
+                    if (!data.message) {
+                        socket.emit('request_frame');
+                        
+                    } else {
+                        console.log(data.message);
+                        alert(data.message);
+                       
+                    }
+                }
+            });
+            socket.on('response', function(data) {
+                console.log(data.data);
+            });
+
+            socket.on('disconnect', function() {
+                console.log('WebSocket disconnected');
+            });
+        });
+
+        function syncDataSet(){
+            $.ajax({
+                url:'/async-dataset',
+                method: 'POST',
+            }).done(function(data){
+                    console.log(data)
+                    if(data.success) {
+                        alert(data.success)
+                    }
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                console.log(jqXHR)
+            })
+        }
+        function startCam() {
+            if (!isCameraRunning) {
+                isCameraRunning = true;
+                socket.emit('request_frame');
+                console.log("Camera started");
+            }
+        }
+
+        function stopCam() {
+            if (isCameraRunning) {
+                isCameraRunning = false;
+                socket.emit('stop_frame_create_dataset');
+                console.log("Camera stopped");
+            }
+        }
+
+     
+    </script>
+</body>
+</html>

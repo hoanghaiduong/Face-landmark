@@ -1,0 +1,10 @@
+vscode/
+venv/
+__pycache__/
+datasets/
+test*
+*.db
+public/
+./intel/
+face_recognition/python/intel
+*.mp4

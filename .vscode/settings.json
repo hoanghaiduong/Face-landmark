@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "./common/python",
+        "./common/python/model_zoo",
+        "./face_recognition/python"
+    ]
+}

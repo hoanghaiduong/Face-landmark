@@ -1,0 +1,29 @@
+openvino-dev
+torch
+torchvision
+# attrdict
+python-box
+tensorflow==2.16.1
+
+Flask~=3.0.3
+Flask-Cors~=4.0.1
+Flask-SocketIO~=5.3.6
+inflect>=5.3.0
+librosa>=0.8.0
+matplotlib>=3.3.4,<3.8
+pyparsing
+motmetrics>=1.2.0
+nibabel>=3.2.1
+numpy>=1.16.6,<2.0.0
+opencv-python
+pillow>=8.1.2
+pyyaml>=5.4.1
+scikit-learn>=0.24.1
+scipy>=1.5.4
+sympy>=1.8
+tensorboardX>=2.1
+tokenizers~=0.10.1;python_version<"3.7"
+tokenizers>=0.10.1;python_version>="3.7"
+tqdm>=4.54.1
+-r common/python/requirements.txt
+-r common/python/requirements_ovms.txt

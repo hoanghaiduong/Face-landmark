@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainning</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <h1>Trainning</h1>
+    <input type="text" id="folder_name" placeholder="Please enter name user">
+    <input type="number" placeholder="Number of train" id="num_samples">
+  
+    <button id="btnTrain">Start Trainning</button>
+    <button id="btnStopTrain">Stop Trainning</button>
+    <img id="frame_trainning" src="" alt="Video Frame" style="width: 100%; max-width: 720px;"/>
+    <script>
+        var folder_name = $("#folder_name");
+        var num_samples = $("#num_samples");
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var isTraining = false;
+
+        function startCamera() {
+            socket.emit('request_frame_create_dataset');
+        }
+
+        function stopCamera() {
+            socket.emit('stop_frame_create_dataset');
+        }
+
+        socket.on('frame_trainning', function(data) {
+            document.getElementById('frame_trainning').src = 'data:image/jpeg;base64,' + btoa(String.fromCharCode.apply(null, new Uint8Array(data.frame_encoded)));
+        });
+
+        $("#btnTrain").click(function(){
+            if (folder_name.val() === "" || num_samples.val() === "") {
+                alert("Please enter a train name or number sample");
+            } else {
+                startCamera();
+                isTraining = true;
+                $.ajax({
+                    method: 'POST',
+                    url: `create-dataset?folder_name=${folder_name.val()}&num_samples=${num_samples.val()}`
+                }).done(function(data){
+                    console.log(data);
+                }).fail(function(error){
+                    console.log(error.message);
+                });
+            }
+        });
+
+        $("#btnStopTrain").click(function(){
+            if (isTraining) {
+                stopCamera();
+                isTraining = false;
+                console.log("Training stopped.");
+            } else {
+                console.log("Training is not in progress.");
+            }
+        });
+    </script>
+</body>
+</html>
